@@ -2,6 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
+    mode: 'production',
     entry: ['./src/main.jsx'],
     devtool: 'source-map',
     output: { path: __dirname+"/app", filename: 'b2share-bundle.js' },
@@ -24,7 +25,9 @@ module.exports = {
         loaders: [
             {   test: /\.jsx?$/,
                 loader: 'babel-loader',
-                query: { presets: ['es2015', 'react'] },
+                query: {
+                    presets: ['babel-preset-es2015', 'babel-preset-react']
+                },
                 include: path.join(__dirname, 'src')
             }
         ]
