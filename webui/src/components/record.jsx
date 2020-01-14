@@ -1,4 +1,5 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router'
 import { Map, List } from 'immutable';
 import { DateTimePicker, Multiselect, DropdownList, NumberPicker } from 'react-widgets';
@@ -12,34 +13,34 @@ import { Versions } from './versions.jsx';
 import { getSchemaOrderedMajorAndMinorFields } from './schema.jsx';
 
 
-const PT = React.PropTypes;
+const PT = PropTypes;
 
 
-export const RecordRoute = React.createClass({
-    render() {
-        const { id } = this.props.params;
-        const record = serverCache.getRecord(id);
-        if (record instanceof Error) {
-            return <Err err={record}/>;
-        }
-        if (!record) {
-            return <Wait/>;
-        }
-        const [rootSchema, blockSchemas] = serverCache.getRecordSchemas(record);
-        const community = serverCache.getCommunity(record.getIn(['metadata', 'community']));
-        const b2noteUrl = serverCache.getInfo().get('b2note_url');
-
-        return (
-            <ReplaceAnimate>
-                <Record record={record} community={community} rootSchema={rootSchema} blockSchemas={blockSchemas} b2noteUrl={b2noteUrl}/>
-            </ReplaceAnimate>
-        );
+export function RecordRoute(props) {
+    const { id } = props.params;
+    const record = serverCache.getRecord(id);
+    if (record instanceof Error) {
+        return <Err err={record}/>;
     }
-});
+    if (!record) {
+        return <Wait/>;
+    }
+    const [rootSchema, blockSchemas] = serverCache.getRecordSchemas(record);
+    const community = serverCache.getCommunity(record.getIn(['metadata', 'community']));
+    const b2noteUrl = serverCache.getInfo().get('b2note_url');
+
+    return (
+        <ReplaceAnimate>
+            <Record record={record} community={community} rootSchema={rootSchema} blockSchemas={blockSchemas} b2noteUrl={b2noteUrl}/>
+        </ReplaceAnimate>
+    );
+}
 
 
-const B2NoteWidget = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+const B2NoteWidget = createReactClass({
+    displayName: 'B2NoteWidget',
+
+
     propTypes: {
         record: PT.object.isRequired,
         file: PT.object.isRequired,
@@ -68,12 +69,14 @@ const B2NoteWidget = React.createClass({
                 <input type="submit" className="btn btn-sm btn-default" value="Annotate in B2Note" title="Click to annotate file using B2Note."/>
             </form>
         );
-    }
+    },
 });
 
 
-const Record = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+const Record = createReactClass({
+    displayName: 'Record',
+
+
     getInitialState() {
         return {
             showB2NoteWindow: false,
@@ -310,7 +313,6 @@ const Record = React.createClass({
         );
     },
 
-
     renderFieldBlock(schemaID, schema, excludeFields) {
         if (!schema) {
             return <Wait key={schemaID}/>;
@@ -414,7 +416,7 @@ const Record = React.createClass({
                                             right: 0;
                                             bottom: 0;
                                             left: 0;
-                                        }    
+                                        }
                                         .loader {
                                             position: absolute;
                                             margin: auto;
@@ -481,7 +483,7 @@ const Record = React.createClass({
                 </div>
             </div>
         );
-    }
+    },
 });
 
 

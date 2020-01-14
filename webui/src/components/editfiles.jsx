@@ -1,4 +1,5 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router'
 import { fromJS, OrderedMap, Map } from 'immutable';
 import moment from 'moment';
@@ -7,43 +8,41 @@ import { pairs, humanSize } from '../data/misc';
 import { Wait, Err } from './waiting.jsx';
 import { ReplaceAnimate } from './animate.jsx';
 
-const PT = React.PropTypes;
+const PT = PropTypes;
 
-const LocalDropZone = React.createClass({
-    propTypes: {
+class LocalDropZone extends React.Component {
+    static propTypes = {
         onFiles: PT.func.isRequired,
-    },
+    };
 
-    getInitialState: function() {
-        return {
-            hovering: 0,
-        }
-    },
+    state = {
+        hovering: 0,
+    };
 
-    onDragEnter(e) {
+    onDragEnter = (e) => {
         e.preventDefault();
         this.setState({hovering: this.state.hovering+1});
-    },
+    };
 
-    onDragOver(e) {
+    onDragOver = (e) => {
         e.preventDefault();
         e.stopPropagation();
         return false
-    },
+    };
 
-    onDragLeave(e) {
+    onDragLeave = (e) => {
         e.preventDefault();
         this.setState({hovering: Math.max(this.state.hovering-1,0)})
-    },
+    };
 
-    onDrop(e) {
+    onDrop = (e) => {
         e.preventDefault();
         this.setState({hovering: 0});
         const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
         this.props.onFiles(files);
-    },
+    };
 
-    render: function() {
+    render() {
         const noshow = {width:0, height:0, margin:0, border:'none'};
         const input = this.props.single ?
                 <input ref={r=>this.fileinput=r} name="file" type="file" style={noshow} onChange={this.onDrop} tabIndex={-1}/> :
@@ -56,25 +55,22 @@ const LocalDropZone = React.createClass({
                 {input}
             </button>
         );
-    },
-});
+    }
+}
 
-
-const B2DropZone = React.createClass({
-    propTypes: {
+class B2DropZone extends React.Component {
+    static propTypes = {
         onFiles: PT.func.isRequired,
-    },
+    };
 
-    getInitialState: function() {
-        return {
-            state: 'login',
-            username: "",
-            password: "",
-            files: [],
-        }
-    },
+    state = {
+        state: 'login',
+        username: "",
+        password: "",
+        files: [],
+    };
 
-    onB2DropFiles(parentIndex, data) {
+    onB2DropFiles = (parentIndex, data) => {
         data.files.sort((a, b) => a.name<b.name ? -1 : a.name==b.name ? 0 : 1);
         const files = [];
         const indent = parentIndex >= 0 ? (this.state.files[parentIndex].indent+1) : 0;
@@ -88,9 +84,9 @@ const B2DropZone = React.createClass({
         files.forEach(f => f.indent = indent);
         this.state.files.splice(parentIndex + 1, 0, ...files);
         this.setState({state: 'files', files: this.state.files});
-    },
+    };
 
-    onB2DropError(xhr) {
+    onB2DropError = (xhr) => {
         if (xhr.status === 401) {
             this.setState({error:'The username or password is incorrect, please try again.'});
         } else if (xhr.status === 403) {
@@ -98,14 +94,14 @@ const B2DropZone = React.createClass({
         } else {
             this.setState({error:'Error logging in, please try again.'});
         }
-    },
+    };
 
-    authenticate() {
+    authenticate = () => {
         serverCache.b2dropInit(this.state.username, this.state.password,
                                this.onB2DropFiles.bind(this, -1), this.onB2DropError);
-    },
+    };
 
-    handleFileClick(file, index) {
+    handleFileClick = (file, index) => {
         if (file.isdir) {
             if (file.children == undefined) {
                 serverCache.b2dropList(file.path,
@@ -120,15 +116,15 @@ const B2DropZone = React.createClass({
             file.selected = !file.selected;
             this.setState({files:this.state.files});
         }
-    },
+    };
 
-    handleSelectFiles() {
+    handleSelectFiles = () => {
         const files = this.state.files.filter(f => f.selected);
         this.props.onFiles(files);
         this.props.close();
-    },
+    };
 
-    renderLogin: function() {
+    renderLogin = () => {
         const instyle={
             fontSize: 20,
             margin: 0,
@@ -170,9 +166,9 @@ const B2DropZone = React.createClass({
                 </div>
             </form>
         );
-    },
+    };
 
-    renderFile: function(file, index) {
+    renderFile = (file, index) => {
         const iconClass = !file.isdir ? "glyphicon-file"
                             : file.children == undefined ? "glyphicon-folder-close"
                             : "glyphicon-folder-open";
@@ -195,9 +191,9 @@ const B2DropZone = React.createClass({
                 <div className="col-sm-3">{date}</div>
             </li>
         );
-    },
+    };
 
-    renderFiles: function() {
+    renderFiles = () => {
         return (
             <div style={{margin:'1em'}}>
                 <ol className="list-unstyled fileList" style={{textAlign:'left', minHeight:'30em'}}>
@@ -219,9 +215,9 @@ const B2DropZone = React.createClass({
                 </div>
             </div>
         );
-    },
+    };
 
-    render: function() {
+    render() {
         const closeStyle = {
             display:'inline',
             float:'right',
@@ -248,33 +244,29 @@ const B2DropZone = React.createClass({
                 </div>
             </div>
         );
-    },
-});
+    }
+}
 
+class B2SafeZone extends React.Component {
+    state = {
+        state: 'b2safe',
+        b2safe_files: [],
+        value: '',
+        filename: '',
+        showResults: false,
+        URL: '',
+        CHECKSUM: '',
+    };
 
-const B2SafeZone = React.createClass({
-
-    getInitialState() {
-        return {
-            state: 'b2safe',
-            b2safe_files: [],
-            value: '',
-            filename: '',
-            showResults: false,
-            URL: '',
-            CHECKSUM: '',
-        }
-    },
-
-    handleChangeValue(event) {
+    handleChangeValue = (event) => {
         this.setState({value: event.target.value});
-    },
+    };
 
-    handleChangeFilename(event) {
+    handleChangeFilename = (event) => {
         this.setState({filename: event.target.value});
-    },
+    };
 
-    handleSubmit(event) {
+    handleSubmit = (event) => {
         if(!this.state.showResults){
             event.preventDefault();
             if(this.state.value.length == 64 && this.state.filename != ''){
@@ -285,15 +277,15 @@ const B2SafeZone = React.createClass({
         else{
             serverCache.addB2SafePid(this.state.value, this.handleAdd);
         }
-    },
+    };
 
-    handleResponse(response) {
+    handleResponse = (response) => {
         this.setState({URL: response.URL});
         this.setState({CHECKSUM: response.CHECKSUM});
         this.setState({showResults: true});
-    },
+    };
 
-    handleAdd(event) {
+    handleAdd = (event) => {
         alert("B2SafePid has been added");
         event.preventDefault();
         const original = this.props.record.get('metadata').toJS();
@@ -326,17 +318,15 @@ const B2SafeZone = React.createClass({
 
         this.setState({waitingForServer: true});
         this.props.patchFn(patch, afterPatch, onError);
-    },
+    };
 
-    resetPID(){
+    resetPID = () => {
         this.setState({value: ''});
         this.setState({filename: ''});
         this.setState({showResults: false});
-    },
+    };
 
-
-
-    render: function() {
+    render() {
         const closeStyle = {
             display:'inline',
             float:'right',
@@ -403,25 +393,23 @@ const B2SafeZone = React.createClass({
                 </div>
             </div>
         );
-    },
-});
+    }
+}
 
 
-export const EditFiles = React.createClass({
-    propTypes: {
+export class EditFiles extends React.Component {
+    static propTypes = {
         files: PT.array.isRequired,
         record: PT.object.isRequired,
         setState: PT.func.isRequired,
         setModal: PT.func.isRequired,
-    },
+    };
 
-    getInitialState: function() {
-        return {
-            files: [],
-        }
-    },
+    state = {
+        files: [],
+    };
 
-    handleAdd: function(fs, location) {
+    handleAdd = (fs, location) => {
         const files = this.state.files;
         for (let i = 0; i < fs.length; ++i) {
             const file = fs[i];
@@ -432,9 +420,9 @@ export const EditFiles = React.createClass({
             files.push(file);
         }
         this.setState({files:files});
-    },
+    };
 
-    removeUploadFile: function(f) {
+    removeUploadFile = (f) => {
         if (f.xhr) {
             f.xhr.abort();
         }
@@ -445,13 +433,13 @@ export const EditFiles = React.createClass({
                 this.props.setState('done');
             }
         }
-    },
+    };
 
-    removeRecordFile: function(f) {
+    removeRecordFile = (f) => {
         serverCache.deleteFile(this.props.record, f.key);
-    },
+    };
 
-    transferFileCallback(file, status, param) {
+    transferFileCallback = (file, status, param) => {
         if (status === 'uploading') {
             file.progress = param;
             file.error = null;
@@ -476,9 +464,9 @@ export const EditFiles = React.createClass({
                 this.props.setState('done');
             }
         }
-    },
+    };
 
-    updateNext() {
+    updateNext = () => {
         let file = this.state.files.length ? this.state.files[0] : null;
         if (file === null || file.hasOwnProperty('progress')) {
             return;
@@ -494,9 +482,9 @@ export const EditFiles = React.createClass({
                                                       this.transferFileCallback.bind(this, file));
             }
         }, 1);
-    },
+    };
 
-    renderUploadQueue() {
+    renderUploadQueue = () => {
         if (!this.state.files.length) {
             return false;
         }
@@ -509,10 +497,9 @@ export const EditFiles = React.createClass({
                 </div>
             </div>
         );
-    },
+    };
 
-
-    renderRecordFiles() {
+    renderRecordFiles = () => {
         if (!this.props.files.length) {
             return false;
         }
@@ -540,10 +527,9 @@ export const EditFiles = React.createClass({
                 </div>
             </div>
         );
-    },
+    };
 
-
-    render: function() {
+    render() {
         this.updateNext();
         const b2dropZone = <B2DropZone close={e => this.props.setModal(false)}
                                        onFiles={fs => this.handleAdd(fs, 'b2drop')} />;
@@ -582,11 +568,13 @@ export const EditFiles = React.createClass({
                 }
             </div>
         );
-    },
-});
+    }
+}
 
-export const FileUploadHeader = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+export const FileUploadHeader = createReactClass({
+    displayName: 'FileUploadHeader',
+
+
     render() {
         return (
             <div className="row fileHeader" style={{marginTop:'0.5em', marginBottom:'0.5em'}}>
@@ -594,23 +582,21 @@ export const FileUploadHeader = React.createClass({
                 <div className="col-sm-3">Size</div>
             </div>
         );
-    }
+    },
 });
 
 
-const FileUploadRow = React.createClass({
-    propTypes: {
+class FileUploadRow extends React.Component {
+    static propTypes = {
         file: PT.object.isRequired,
         remove: PT.func.isRequired,
-    },
+    };
 
-    getInitialState() {
-        return {
-            remove: false,
-        };
-    },
+    state = {
+        remove: false,
+    };
 
-    renderProgress: function(file) {
+    renderProgress = (file) => {
         const widthPercent = file.progress+'%';
         return (
             <div className="row" style={{margin:'5px 0px'}}>
@@ -622,9 +608,9 @@ const FileUploadRow = React.createClass({
                 </div>
             </div>
         );
-    },
+    };
 
-    renderError: function(file) {
+    renderError = (file) => {
         return (
             <div className="row" style={{margin:'5px 0px'}}>
                 <div className="col-md-12">
@@ -632,7 +618,7 @@ const FileUploadRow = React.createClass({
                 </div>
             </div>
         );
-    },
+    };
 
     render() {
         let file = this.props.file;
@@ -659,11 +645,13 @@ const FileUploadRow = React.createClass({
                 { file.error ? this.renderError(file) : false }
             </div>
         );
-    },
-});
+    }
+}
 
-export const FileRecordHeader = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+export const FileRecordHeader = createReactClass({
+    displayName: 'FileRecordHeader',
+
+
     render() {
         return (
             <div className="row fileHeader" style={{marginTop:'0.5em', marginBottom:'0.5em'}}>
@@ -671,12 +659,13 @@ export const FileRecordHeader = React.createClass({
                 <div className="col-sm-3">Size</div>
             </div>
         );
-    }
+    },
 });
 
 
-export const FileRecordRow = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+export const FileRecordRow = createReactClass({
+    displayName: 'FileRecordRow',
+
 
     propTypes: {
         file: PT.object.isRequired,
@@ -763,36 +752,36 @@ export const FileRecordRow = React.createClass({
 });
 
 
-const FileRemoveDialog = React.createClass({
-    propTypes: {
-        file: PT.object.isRequired,
-        remove: PT.func.isRequired,
-        cancel: PT.func.isRequired,
-    },
-
-    render: function() {
-        const file = this.props.file;
-        return (
-            <div className="row">
-                <div className="col-sm-10 col-sm-offset-1"> <p style={{textAlign:'center', padding:'1em 0'}}>
-                    { file.progress ? 'Stop uploading and remove this file?' : 'Remove this file?'}
-                    { file.key ? ' This operation will change the record.' : false }
-                </p> </div>
-                <div className="col-sm-4 col-sm-offset-2">
-                    <button type="button" className="btn btn-default btn-block btn-sm"
-                        onClick={this.props.remove}> Yes </button>
-                </div>
-                <div className="col-sm-4">
-                    <button type="button" className="btn btn-default btn-block btn-sm"
-                        onClick={this.props.cancel}> No </button>
-                </div>
+function FileRemoveDialog(props) {
+    const file = props.file;
+    return (
+        <div className="row">
+            <div className="col-sm-10 col-sm-offset-1"> <p style={{textAlign:'center', padding:'1em 0'}}>
+                { file.progress ? 'Stop uploading and remove this file?' : 'Remove this file?'}
+                { file.key ? ' This operation will change the record.' : false }
+            </p> </div>
+            <div className="col-sm-4 col-sm-offset-2">
+                <button type="button" className="btn btn-default btn-block btn-sm"
+                    onClick={props.remove}> Yes </button>
             </div>
-        );
-    },
-});
+            <div className="col-sm-4">
+                <button type="button" className="btn btn-default btn-block btn-sm"
+                    onClick={props.cancel}> No </button>
+            </div>
+        </div>
+    );
+}
+
+FileRemoveDialog.propTypes = {
+    file: PT.object.isRequired,
+    remove: PT.func.isRequired,
+    cancel: PT.func.isRequired,
+};
 
 
-export const PersistentIdentifier = React.createClass({
+export const PersistentIdentifier = createReactClass({
+    displayName: 'PersistentIdentifier',
+
     propTypes: {
         pid: PT.string.isRequired,
         doi: PT.bool,

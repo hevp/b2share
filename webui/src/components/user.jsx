@@ -1,16 +1,23 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router'
 import { serverCache, Error, loginURL, notifications } from '../data/server';
 import { CommunityAdmin } from './community_admin.jsx'
 import { Wait, Err } from './waiting.jsx';
 
-const PT = React.PropTypes;
+const PT = PropTypes;
 
-export const LoginOrRegister = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+var createReactClass = require('create-react-class');
+
+
+export const LoginOrRegister = createReactClass({
+    displayName: 'LoginOrRegister',
+
+
     propTypes: {
-        b2access_registration_link: React.PropTypes.string.isRequired,
+        b2access_registration_link: PropTypes.string.isRequired,
     },
+
     render() {
         return (
             <span>
@@ -19,11 +26,12 @@ export const LoginOrRegister = React.createClass({
                 <a href={this.props.b2access_registration_link}> Register </a>
             </span>
         );
-    }
+    },
 });
 
-export const NavbarUser = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+export const NavbarUser = createReactClass({
+    displayName: 'NavbarUser',
+
 
     getInitialState() {
         return {
@@ -68,19 +76,18 @@ export const NavbarUser = React.createClass({
     render() {
         const user = this.props.user;
         return (user && user.get('name')) ? this.renderUser(user) : this.renderNoUser();
-    }
+    },
 });
 
 
-export const UserRoute = React.createClass({
-    render() {
-        return <UserProfile user={serverCache.getUser()}/>;
-    }
-});
+export function UserRoute(props) {
+    return <UserProfile user={serverCache.getUser()}/>;
+}
 
 
 
-export const UserProfile = React.createClass({
+export const UserProfile = createReactClass({
+    displayName: 'UserProfile',
     mixins: [React.addons.LinkedStateMixin],
 
     renderNoUser() {
@@ -152,18 +159,16 @@ export const UserProfile = React.createClass({
                 </div>
             </div>
         );
-    }
+    },
 });
 
 
-const TokenList = React.createClass({
-    getInitialState() {
-        return {
-            token: null,
-        }
-    },
+class TokenList extends React.Component {
+    state = {
+        token: null,
+    };
 
-    newToken(tokenName) {
+    newToken = (tokenName) => {
         if (!tokenName) {
             notifications.danger('Please choose a name for the new token');
         } else {
@@ -172,15 +177,15 @@ const TokenList = React.createClass({
                 this.setState({token});
             });
         }
-    },
+    };
 
-    renderToken(t) {
+    renderToken = (t) => {
         return <div key={t.id}> <Token token_id={t.id} token_name={t.name} removeToken={this.removeToken} /> </div>
-    },
+    };
 
-    removeToken(token_id){
+    removeToken = (token_id) => {
         serverCache.removeUserToken(token_id);
-    },
+    };
 
     render() {
         const tokenList = serverCache.getUserTokens();
@@ -218,16 +223,15 @@ const TokenList = React.createClass({
             </div>
         );
     }
-});
+}
 
-
-const Token = React.createClass({
-    removeToken(e){
+class Token extends React.Component {
+    removeToken = (e) => {
         e.preventDefault();
         this.props.removeToken(this.props.token_id);
-    },
+    };
 
-    render(){
+    render() {
         return  <li className="list-group-item" key={this.props.token_id}>{this.props.token_name}
                     <span className="pull-right">
                             <form className="form-inline" onSubmit={this.removeToken}>
@@ -238,21 +242,19 @@ const Token = React.createClass({
                     </span>
                 </li>;
     }
-});
+}
 
-const AddToken = React.createClass({
-    getInitialState() {
-        return {
-            name: "",
-        }
-    },
+class AddToken extends React.Component {
+    state = {
+        name: "",
+    };
 
-    addToken(e){
+    addToken = (e) => {
         e.preventDefault();
         this.props.newToken(this.state.name);
-    },
+    };
 
-    render(){
+    render() {
         return <div>
                     <p className="control-label">Create new token:</p>
                     <form className="form-inline" onSubmit={this.addToken}>
@@ -269,4 +271,4 @@ const AddToken = React.createClass({
                     </form>
                 </div>
             }
-});
+}

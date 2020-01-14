@@ -1,4 +1,5 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router'
 import { Map, List } from 'immutable';
 import { DateTimePicker, Multiselect, DropdownList, NumberPicker } from 'react-widgets';
@@ -9,11 +10,12 @@ import { ReplaceAnimate } from './animate.jsx';
 import { Wait, Err } from './waiting.jsx';
 
 
-const PT = React.PropTypes;
+const PT = PropTypes;
 
 
-export const Versions = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+export const Versions = createReactClass({
+    displayName: 'Versions',
+
 
     render() {
         let {isDraft, recordID, versions} = this.props;
@@ -39,12 +41,13 @@ export const Versions = React.createClass({
                 </div>
             </div>
         );
-    }
+    },
 });
 
 
-const DraftVersions = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+const DraftVersions = createReactClass({
+    displayName: 'DraftVersions',
+
 
     render() {
         let {draftID, versions, style} = this.props;
@@ -61,8 +64,9 @@ const DraftVersions = React.createClass({
     },
 });
 
-const PublishedVersions = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+const PublishedVersions = createReactClass({
+    displayName: 'PublishedVersions',
+
 
     render() {
         let {recordID, versions, style} = this.props;

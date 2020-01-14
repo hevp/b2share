@@ -1,6 +1,7 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import ReactDOM from 'react-dom';
-const ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+
+var createReactClass = require('create-react-class');
 
 import { fromJS } from 'immutable';
 import { Router, Route, browserHistory, IndexRoute } from 'react-router'
@@ -11,7 +12,7 @@ import { ReplaceAnimate } from './components/animate.jsx';
 import { Navbar, Breadcrumbs, Notifications } from './components/navbar.jsx';
 import { HomeRoute } from './components/home.jsx';
 import { UserRoute } from './components/user.jsx';
-import { Help, RestApi, SearchHelp } from './components/help.jsx';
+import { Help, SearchHelp } from './components/help.jsx';
 import { CommunityListRoute, CommunityRoute } from './components/communities.jsx';
 import { SearchRecordRoute } from './components/search.jsx';
 import { RecordRoute  } from './components/record.jsx';
@@ -26,23 +27,21 @@ import { CommunityAdmin } from './components/community_admin.jsx'
 // TODO: edit records: open enums (rename enum to options?)
 // TODO: do memory profile
 
-const AppFrame = React.createClass({
-    getInitialState() {
-        return { dataRef: serverCache.store.root };
-    },
+class AppFrame extends React.Component {
+    state = { dataRef: serverCache.store.root };
 
-    updateStateOnTick() {
+    updateStateOnTick = () => {
         const updateState = () => this.setState({ dataRef: serverCache.store.root });
         if (window.requestAnimationFrame) {
             window.requestAnimationFrame(updateState);
         } else {
             updateState();
         }
-    },
+    };
 
     componentWillMount() {
         serverCache.store.onChange = this.updateStateOnTick;
-    },
+    }
 
     render() {
         // adding a mutating ref is necessary to propagate changes
@@ -64,19 +63,16 @@ const AppFrame = React.createClass({
             </div>
         );
     }
-});
+}
 
-
-const Frame = React.createClass({
-    render() {
-        const additionalProps = {dataRef: this.props.dataRef,  pathName: this.props.location.pathname}
-        return (
-            <ReplaceAnimate>
-                { this.props.children && React.cloneElement(this.props.children, additionalProps) }
-            </ReplaceAnimate>
-        );
-    }
-});
+function Frame(props) {
+    const additionalProps = {dataRef: props.dataRef,  pathName: props.location.pathname}
+    return (
+        <ReplaceAnimate>
+            { props.children && React.cloneElement(props.children, additionalProps) }
+        </ReplaceAnimate>
+    );
+}
 
 
 function testNewPage(prev, next) {

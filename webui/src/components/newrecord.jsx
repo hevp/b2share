@@ -1,11 +1,12 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 
 import { serverCache, notifications, Error, browser } from '../data/server';
 import { Wait, Err } from './waiting.jsx';
 import { renderSmallCommunity } from './common.jsx';
 
 
-export const NewRecordRoute = React.createClass({
+export const NewRecordRoute = createReactClass({
+    displayName: 'NewRecordRoute',
     mixins: [React.addons.LinkedStateMixin],
 
     getInitialState() {
@@ -148,5 +149,5 @@ export const NewRecordRoute = React.createClass({
                 </div>
             </div>
         );
-    }
+    },
 });

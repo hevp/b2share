@@ -1,4 +1,4 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import { Link } from 'react-router'
 import { fromJS } from 'immutable';
 import { serverCache, Error } from '../data/server';
@@ -9,43 +9,40 @@ import { ReplaceAnimate } from './animate.jsx';
 import { LatestRecords } from './latest_records.jsx';
 
 
-export const CommunityListRoute = React.createClass({
-    render() {
-        const communities = serverCache.getCommunities();
-        if (communities instanceof Error) {
-            return <Err err={communities}/>;
-        }
-        return communities ?
-            <CommunityList communities={communities} /> :
-            <Wait/>;
+export function CommunityListRoute(props) {
+    const communities = serverCache.getCommunities();
+    if (communities instanceof Error) {
+        return <Err err={communities}/>;
     }
-});
+    return communities ?
+        <CommunityList communities={communities} /> :
+        <Wait/>;
+}
 
 
-export const CommunityRoute = React.createClass({
-    render() {
-        const { id } = this.props.params; // community id or name
-        const community = serverCache.getCommunity(id);
-        if (!community) {
-            return <Wait/>;
-        }
-        if (community instanceof Error) {
-            return <Err err={community}/>;
-        }
-
-        const [rootSchema, blockSchemas] = serverCache.getCommunitySchemas(community.get('id'), 'last');
-
-        return (
-            <ReplaceAnimate>
-                <Community community={community} rootSchema={rootSchema} blockSchemas={blockSchemas}/>
-            </ReplaceAnimate>
-        );
+export function CommunityRoute(props) {
+    const { id } = props.params; // community id or name
+    const community = serverCache.getCommunity(id);
+    if (!community) {
+        return <Wait/>;
     }
-});
+    if (community instanceof Error) {
+        return <Err err={community}/>;
+    }
+
+    const [rootSchema, blockSchemas] = serverCache.getCommunitySchemas(community.get('id'), 'last');
+
+    return (
+        <ReplaceAnimate>
+            <Community community={community} rootSchema={rootSchema} blockSchemas={blockSchemas}/>
+        </ReplaceAnimate>
+    );
+}
 
 
-const CommunityList = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+const CommunityList = createReactClass({
+    displayName: 'CommunityList',
+
 
     renderCommunity(community) {
         const id = community.get('id');
@@ -77,12 +74,13 @@ const CommunityList = React.createClass({
                 </div>
             </div>
         );
-    }
+    },
 });
 
 
-const Community = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+const Community = createReactClass({
+    displayName: 'Community',
+
 
     renderCommunity(community) {
         const desc = community.get('description') || "";
@@ -164,5 +162,5 @@ const Community = React.createClass({
                 </div>
             </div>
         );
-    }
+    },
 });

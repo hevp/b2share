@@ -1,41 +1,40 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import { Link } from 'react-router'
 
-const Example = React.createClass({
-    render() {
-        const stylePre = {
-            background:'#fafafa',
-            border:'1px solid #eee',
-            padding: '0.5em',
-            margin: '0.5em 1em 0.5em 0',
-            fontSize:'1em',
-            whiteSpace: 'pre-wrap',
-        };
-        return (
-            <pre style={stylePre}>
-                <span style={{color:'#888'}}>Example: </span>
-                <span style={{color:'#111'}}>
-                    { this.props.children }
-                </span>
-            </pre>
-        );
-    }
-});
+function Example(props) {
+    const stylePre = {
+        background:'#fafafa',
+        border:'1px solid #eee',
+        padding: '0.5em',
+        margin: '0.5em 1em 0.5em 0',
+        fontSize:'1em',
+        whiteSpace: 'pre-wrap',
+    };
+    return (
+        <pre style={stylePre}>
+            <span style={{color:'#888'}}>Example: </span>
+            <span style={{color:'#111'}}>
+                { props.children }
+            </span>
+        </pre>
+    );
+}
 
-const Returns = React.createClass({
-    getInitialState() {
-        return {
-            open: false,
-        };
-    },
-    toggle(e) {
+class Returns extends React.Component {
+    state = {
+        open: false,
+    };
+
+    toggle = (e) => {
         e.preventDefault();
         this.setState({open:!this.state.open});
-    },
-    jsonize(x) {
+    };
+
+    jsonize = (x) => {
         x = JSON.stringify(this.props.children, null, 2);
         return x.replace(new RegExp('"\\.\\.\\."', 'g'), "...");
-    },
+    };
+
     render() {
         return (
             <span style={{display:'block'}}>
@@ -50,8 +49,8 @@ const Returns = React.createClass({
                 </span>
             </span>
         );
-    },
-});
+    }
+}
 
 module.exports = function() {
   return (

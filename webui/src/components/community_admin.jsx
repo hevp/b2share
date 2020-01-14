@@ -1,4 +1,4 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import { Link } from 'react-router';
 import { DropdownList, Multiselect } from 'react-widgets';
 import { fromJS, OrderedMap, Map } from 'immutable';
@@ -6,9 +6,9 @@ import { serverCache, notifications , browser , Error, loginURL} from '../data/s
 import { LoginOrRegister } from './user.jsx';
 import { Wait, Err } from './waiting.jsx';
 
-export const CommunityAdmin = React.createClass({
+export class CommunityAdmin extends React.Component {
     // Assign a role to a user
-    handleChange(roles, email, selectedRole){
+    handleChange = (roles, email, selectedRole) => {
         var searchedUser = {};
         if(email && selectedRole ){
              serverCache.registerUserRole(email, roles[selectedRole],
@@ -20,9 +20,9 @@ export const CommunityAdmin = React.createClass({
                     }
                 );
         }
-    },
+    };
 
-    renderNoUser() {
+    renderNoUser = () => {
         const b2access = serverCache.getInfo().get('b2access_registration_link');
         return (
             <div>
@@ -33,7 +33,7 @@ export const CommunityAdmin = React.createClass({
                 </div>
             </div>
         );
-    },
+    };
 
     render() {
         const current_user = serverCache.getUser();
@@ -84,89 +84,83 @@ export const CommunityAdmin = React.createClass({
             </div>
         );
     }
-});
+}
 
 
-export const UsersTable = React.createClass({
-    render() {
-        if (!this.props.users) {
-            return <Wait/>;
-        }
-        var rows = [];
-        Object.keys(this.props.users).forEach( userid => {
-            var roleName = [];
-            for(var k in this.props.roles){
-                if(this.props.users[userid]["roles"].includes(this.props.roles[k])){
-                    roleName.push(k);
-                }
+export function UsersTable(props) {
+    if (!props.users) {
+        return <Wait/>;
+    }
+    var rows = [];
+    Object.keys(props.users).forEach( userid => {
+        var roleName = [];
+        for(var k in props.roles){
+            if(props.users[userid]["roles"].includes(props.roles[k])){
+                roleName.push(k);
             }
-            rows.push( <UserRow userID={userid}
-                                userEmail={this.props.users[userid]["email"]}
-                                userRoleID={this.props.users[userid]["roles"]}
-                                userRoleName={roleName}
-                                key={userid}
-                                roles={this.props.roles} />);
-        });
-
-        return (
-            <div>
-                <div className="row" >
-                    <div className="col-sm-4"><h4><strong> Email Address </strong></h4></div>
-                    <div className="col-sm-2"><h4><strong> Role </strong></h4></div>
-                    <div className="col-sm-6"><h4><strong> Edit </strong></h4></div>
-                </div>
-                <div >{rows}</div>
-            </div>
-        );
-    }
-});
-
-
-export const UserRow = React.createClass({
-    render(){
-        if (!this.props.roles) {
-            return <Wait/>;
         }
+        rows.push( <UserRow userID={userid}
+                            userEmail={props.users[userid]["email"]}
+                            userRoleID={props.users[userid]["roles"]}
+                            userRoleName={roleName}
+                            key={userid}
+                            roles={props.roles} />);
+    });
 
-        var showRolesName = this.props.userRoleName.map((role) => <div key={role}> {role || ''}</div>);
-        return (
-            <div>
-                <div className="row well">
-                    <div className="col-sm-4">{this.props.userEmail}</div>
-                    <div className="col-sm-2">{showRolesName}</div>
-                    <div className="col-sm-6"><EditRoles roles={this.props.roles}
-                                                        defRoleName={this.props.userRoleName}
-                                                        defRoleID={this.props.userRoleID}
-                                                        userEmail={this.props.userEmail}
-                                                        userID={this.props.userID}/ ></div>
-                </div>
+    return (
+        <div>
+            <div className="row" >
+                <div className="col-sm-4"><h4><strong> Email Address </strong></h4></div>
+                <div className="col-sm-2"><h4><strong> Role </strong></h4></div>
+                <div className="col-sm-6"><h4><strong> Edit </strong></h4></div>
             </div>
-        );
+            <div >{rows}</div>
+        </div>
+    );
+}
+
+
+export function UserRow(props) {
+    if (!props.roles) {
+        return <Wait/>;
     }
-});
 
-export const EditRoles = React.createClass({
-    getInitialState() {
-        return {
-            edit: false,
-            currentAssignedRole: null,
-        };
-    },
+    var showRolesName = props.userRoleName.map((role) => <div key={role}> {role || ''}</div>);
+    return (
+        <div>
+            <div className="row well">
+                <div className="col-sm-4">{props.userEmail}</div>
+                <div className="col-sm-2">{showRolesName}</div>
+                <div className="col-sm-6"><EditRoles roles={props.roles}
+                                                    defRoleName={props.userRoleName}
+                                                    defRoleID={props.userRoleID}
+                                                    userEmail={props.userEmail}
+                                                    userID={props.userID}/ ></div>
+            </div>
+        </div>
+    );
+}
 
-    componentWillMount(){
+export class EditRoles extends React.Component {
+    state = {
+        edit: false,
+        currentAssignedRole: null,
+    };
+
+    componentWillMount() {
         this.componentWillReceiveProps(this.props);
-    },
+    }
 
-    componentWillReceiveProps(nextProps){
+    componentWillReceiveProps(nextProps) {
         this.setState({currentAssignedRole: nextProps.defRoleName});
-    },
+    }
 
-    onSubmit(e) {
+    onSubmit = (e) => {
         e.preventDefault();
         this.editUsersRoles();
-    },
+    };
 
-    assignRole(roleid, userEmail){
+    assignRole = (roleid, userEmail) => {
         serverCache.registerUserRole(userEmail, roleid,
             () => {
                 notifications.success("The new role was added to the user");
@@ -175,9 +169,9 @@ export const EditRoles = React.createClass({
                 notifications.danger("An error occured while trying to add the new role to the user");
             }
         );
-    },
+    };
 
-    deleteRole(roleid, userid){
+    deleteRole = (roleid, userid) => {
         const current_user = serverCache.getUser();
         if(parseInt(userid) === current_user.getIn(['id']) && this.props.roles['admin'] === parseInt(roleid)){
             notifications.danger("You are not allowed to remove your admin role through this page. ");
@@ -186,9 +180,9 @@ export const EditRoles = React.createClass({
         else{
             serverCache.deleteRoleOfUser(roleid, userid);
         }
-    },
+    };
 
-    editUsersRoles(){
+    editUsersRoles = () => {
         if(this.state.currentAssignedRole){
             let oldroles = new Set(this.props.defRoleName);
             let newroles = new Set(this.state.currentAssignedRole);
@@ -205,7 +199,7 @@ export const EditRoles = React.createClass({
                 })
             }
         }
-    },
+    };
 
     render() {
         var edit = this.state.edit;
@@ -233,27 +227,25 @@ export const EditRoles = React.createClass({
             </form>
         );
     }
-});
+}
 
 
-export const AddUser = React.createClass({
-    getInitialState() {
-        return {
-            email: "",
-            selectedRole: "",
-        };
-    },
+export class AddUser extends React.Component {
+    state = {
+        email: "",
+        selectedRole: "",
+    };
 
-    onChange(e) {
+    onChange = (e) => {
         this.setState({
             [e.target.name]: e.target.value
         });
-    },
+    };
 
-    onSubmit(e) {
+    onSubmit = (e) => {
         e.preventDefault();
         this.props.handleChange(this.props.roles, this.state.email, this.state.selectedRole)
-    },
+    };
 
     render() {
         const gap = {marginTop:'1em', marginBottom:'1em'};
@@ -288,7 +280,7 @@ export const AddUser = React.createClass({
                 </form>
             </div>
         );
-    },
-});
+    }
+}
 
 

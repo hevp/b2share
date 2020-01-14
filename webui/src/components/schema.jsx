@@ -1,4 +1,4 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import { OrderedMap } from 'immutable';
 import { Link } from 'react-router'
 import { serverCache, Error } from '../data/server';
@@ -32,8 +32,9 @@ export function getSchemaOrderedMajorAndMinorFields(schema) {
     return [majors, minors];
 };
 
-export const Schema = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+export const Schema = createReactClass({
+    displayName: 'Schema',
+
 
     renderSchema([id, schema]) {
         const arrayStyle = {
@@ -121,5 +122,5 @@ export const Schema = React.createClass({
                 </ul>
             </div>
         );
-    }
+    },
 });

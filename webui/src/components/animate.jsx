@@ -1,56 +1,50 @@
-import React from 'react/lib/ReactWithAddons';
-const ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+import React from 'react';
+import TransitionGroup from 'react-transition-group/TransitionGroup';
 
 
-export const ReplaceAnimate = React.createClass({
-    render() {
-        const delta = 100;
-        return (<div> { this.props.children } </div>);
-        // return (
-        //     <ReactCSSTransitionGroup component="div" className="animator" transitionName="route"
-        //             transitionAppear={true} transitionAppearTimeout={delta}
-        //             transitionEnterTimeout={delta} transitionLeaveTimeout={delta}>
+export function ReplaceAnimate(props) {
+    const delta = 100;
+    return <div> { props.children } </div>;
+    // return (
+    //     <CSSTransitionGroup component="div" className="animator" transitionName="route"
+    //             transitionAppear={true} transitionAppearTimeout={delta}
+    //             transitionEnterTimeout={delta} transitionLeaveTimeout={delta}>
 
-        //     </ReactCSSTransitionGroup>
-        // );
-    }
-});
+    //     </CSSTransitionGroup>
+    // );
+}
 
-export const ListAnimate = React.createClass({
-    render() {
-        const delta = 1000;
-        return (
-            <ReactCSSTransitionGroup component="div" className="animator" transitionName="list"
-                    transitionAppear={true} transitionAppearTimeout={delta}
-                    transitionEnterTimeout={delta} transitionLeaveTimeout={delta}>
-                { this.props.children }
-            </ReactCSSTransitionGroup>
-        );
-    }
-});
+export function ListAnimate(props) {
+    const delta = 1000;
+    return (
+        <CSSTransitionGroup component="div" className="animator" transitionName="list"
+                transitionAppear={true} transitionAppearTimeout={delta}
+                transitionEnterTimeout={delta} transitionLeaveTimeout={delta}>
+            { props.children }
+        </CSSTransitionGroup>
+    );
+}
 
-export const HeightAnimate = React.createClass({
-    getInitialState() {
-        return {
-            height: 0,
-        }
-    },
+export class HeightAnimate extends React.Component {
+    state = {
+        height: 0,
+    };
 
-    onHeight() {
+    onHeight = () => {
         const h = + (this.wrapper ? this.wrapper.clientHeight : 0)
                   + (this.props.delta || 0);
         if (h != this.state.height) {
             this.setState({height: h});
         }
-    },
+    };
 
     componentDidMount() {
         this.onHeight();
-    },
+    }
 
     componentDidUpdate() {
         this.onHeight();
-    },
+    }
 
     render() {
         return (
@@ -61,4 +55,4 @@ export const HeightAnimate = React.createClass({
             </div>
         );
     }
-});
+}

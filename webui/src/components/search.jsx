@@ -1,4 +1,4 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import { Link } from 'react-router'
 import { Map, List } from 'immutable';
 import { DropdownList, NumberPicker } from 'react-widgets';
@@ -8,33 +8,33 @@ import { timestamp2str } from '../data/misc.js'
 import { ReplaceAnimate } from './animate.jsx';
 
 
-export const SearchRecordRoute = React.createClass({
-    render() {
-        const communities = serverCache.getCommunities();
-        const location = this.props.location || {};
-        const drafts = (location.query.drafts == 1) ? 1 : "";
-        const result = serverCache.searchRecords(location.query || {});
-        const numResults = (result && result.get('total')) || 0;
-        return (
-            <div>
-                {drafts ? <h1>Drafts</h1> : <h1>Records</h1>}
-                <Search location={location}
-                        communities={communities}
-                        drafts={drafts}
-                        numResults={result && result.get('total') || 0}/>
-                { result instanceof Error ? <Err err={result}/>
-                    : !result ? <Wait/>
-                        : <ReplaceAnimate>
-                                <RecordList records={result.get('hits')} drafts={drafts} />
-                          </ReplaceAnimate>
-                }
-            </div>
-        );
-    }
-});
+export function SearchRecordRoute(props) {
+    const communities = serverCache.getCommunities();
+    const location = props.location || {};
+    const drafts = (location.query.drafts == 1) ? 1 : "";
+    const result = serverCache.searchRecords(location.query || {});
+    const numResults = (result && result.get('total')) || 0;
+    return (
+        <div>
+            {drafts ? <h1>Drafts</h1> : <h1>Records</h1>}
+            <Search location={location}
+                    communities={communities}
+                    drafts={drafts}
+                    numResults={result && result.get('total') || 0}/>
+            { result instanceof Error ? <Err err={result}/>
+                : !result ? <Wait/>
+                    : <ReplaceAnimate>
+                            <RecordList records={result.get('hits')} drafts={drafts} />
+                      </ReplaceAnimate>
+            }
+        </div>
+    );
+}
 
 
-const Search = React.createClass({
+const Search = createReactClass({
+    displayName: 'Search',
+
     // not a pure render, depends on the URL
     getInitialState() {
         return {
@@ -103,6 +103,7 @@ const Search = React.createClass({
         { id: 'bestmatch', name:'Best Match' },
         { id: 'mostrecent', name:'Most Recent' },
     ],
+
     sizes: ["10", "25", "50"],
 
     renderFilters() {
@@ -201,12 +202,13 @@ const Search = React.createClass({
                 { this.renderPagination() }
             </div>
         );
-    }
+    },
 });
 
 
-const RecordList = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+const RecordList = createReactClass({
+    displayName: 'RecordList',
+
 
     renderCreators(creators) {
         if (!creators || !creators.count()) {
@@ -257,5 +259,5 @@ const RecordList = React.createClass({
                 </div>
             </div>
         );
-    }
+    },
 });

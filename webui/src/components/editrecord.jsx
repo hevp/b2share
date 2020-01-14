@@ -1,4 +1,4 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import { Link } from 'react-router'
 import { Map, List, fromJS } from 'immutable';
 import { compare } from 'fast-json-patch';
@@ -6,8 +6,8 @@ import { compare } from 'fast-json-patch';
 import Toggle from 'react-toggle';
 import { DateTimePicker, Multiselect, DropdownList, NumberPicker } from 'react-widgets';
 import moment from 'moment';
-import momentLocalizer from 'react-widgets/lib/localizers/moment';
-import numberLocalizer from 'react-widgets/lib/localizers/simple-number';
+import momentLocalizer from 'react-widgets-moment';
+import numberLocalizer from 'react-widgets-simple-number';
 momentLocalizer(moment);
 numberLocalizer();
 
@@ -27,10 +27,10 @@ import { renderSmallCommunity } from './common.jsx';
 const invalidFieldMessage = field => `Please provide a correct value for field: ${field}`;
 
 
-export const EditRecordRoute = React.createClass({
-    isDraft: false,
+export class EditRecordRoute extends React.Component {
+    isDraft = false;
 
-    getRecordOrDraft() {
+    getRecordOrDraft = () => {
         const { id } = this.props.params;
         if (this.isDraft) {
             return serverCache.getDraft(id);
@@ -41,25 +41,25 @@ export const EditRecordRoute = React.createClass({
             return serverCache.getDraft(id);
         }
         return record;
-    },
+    };
 
-    refreshCache() {
+    refreshCache = () => {
         const { id } = this.props.params;
         if (this.isDraft) {
             serverCache.getDraft(id);
         } else {
             serverCache.getRecord(id);
         }
-    },
+    };
 
-    patchRecordOrDraft(patch, onSuccessFn, onErrorFn) {
+    patchRecordOrDraft = (patch, onSuccessFn, onErrorFn) => {
         const { id } = this.props.params;
         if (this.isDraft) {
             serverCache.patchDraft(id, patch, onSuccessFn, onErrorFn);
         } else {
             serverCache.patchRecord(id, patch, onSuccessFn, onErrorFn);
         }
-    },
+    };
 
     render() {
         const record = this.getRecordOrDraft();
@@ -87,22 +87,20 @@ export const EditRecordRoute = React.createClass({
             </ReplaceAnimate>
         );
     }
-});
+}
 
 
-const EditRecord = React.createClass({
-    getInitialState() {
-        return {
-            record: null,
-            fileState: 'done',
-            modal: null,
-            errors: {},
-            dirty: false,
-            waitingForServer: false,
-        };
-    },
+class EditRecord extends React.Component {
+    state = {
+        record: null,
+        fileState: 'done',
+        modal: null,
+        errors: {},
+        dirty: false,
+        waitingForServer: false,
+    };
 
-    renderFileBlock() {
+    renderFileBlock = () => {
         const setState = (fileState, message) => {
             const errors = this.state.errors;
             if (fileState === 'done') {
@@ -124,15 +122,15 @@ const EditRecord = React.createClass({
                 setState={setState}
                 setModal={modal => this.setState({modal})} />
         );
-    },
+    };
 
-    setError(id, msg) {
+    setError = (id, msg) => {
         const err = this.state.errors;
         err[id] = msg;
         this.setState({errors: this.state.errors});
-    },
+    };
 
-    getValue(path) {
+    getValue = (path) => {
         const r = this.state.record;
         if (!r) {
             return null;
@@ -142,9 +140,9 @@ const EditRecord = React.createClass({
             v = v.toJS();
         }
         return v;
-    },
+    };
 
-    setValue(schema, path, value) {
+    setValue = (schema, path, value) => {
         let r = this.state.record;
         if (!r) {
             return null;
@@ -181,9 +179,9 @@ const EditRecord = React.createClass({
             delete errors[pathstr];
         }
         this.setState({record:r, errors, dirty:true});
-    },
+    };
 
-    renderScalarField(schema, path) {
+    renderScalarField = (schema, path) => {
         const pathstr = path.join('/');
         const validClass = (this.state.errors[pathstr]) ? " invalid-field " : "";
         const type = schema.get('type');
@@ -225,9 +223,9 @@ const EditRecord = React.createClass({
         } else {
             console.error("Cannot render field of schema:", schema.toJS());
         }
-    },
+    };
 
-    renderLicenseField(schema, path) {
+    renderLicenseField = (schema, path) => {
         const onSelect = (license) => {
             console.assert(path.length >= 1);
             const licenseData = {
@@ -243,9 +241,9 @@ const EditRecord = React.createClass({
                     setModal={modal => this.setState({modal})} />
             </div>
         );
-    },
+    };
 
-    renderOpenAccessField(schema, path, disabled) {
+    renderOpenAccessField = (schema, path, disabled) => {
         const value = this.getValue(path);
         return (
             <div style={{lineHeight:"30px"}}>
@@ -253,9 +251,9 @@ const EditRecord = React.createClass({
                 <div style={{display:"inline", "verticalAlign":"super"}}>{value ? " True" : " False"}</div>
             </div>
         );
-    },
+    };
 
-    renderEmbargoField(schema, path) {
+    renderEmbargoField = (schema, path) => {
         const date = this.getValue(path);
         const initial = (date && date !== "") ? moment(date).toDate() : null;
         const onChange = date => {
@@ -270,9 +268,9 @@ const EditRecord = React.createClass({
             <DateTimePicker format={"LL"} time={false} finalView={"year"}
                         defaultValue={initial} onChange={onChange} />
         );
-    },
+    };
 
-    renderFieldTree(id, schema, path) {
+    renderFieldTree = (id, schema, path) => {
         if (!schema) {
             return false;
         }
@@ -381,9 +379,9 @@ const EditRecord = React.createClass({
                 </div>
             </div>
         );
-    },
+    };
 
-    renderFieldBlock(schemaID, schema) {
+    renderFieldBlock = (schemaID, schema) => {
         if (!schema) {
             return <Wait key={schemaID}/>;
         }
@@ -451,11 +449,11 @@ const EditRecord = React.createClass({
                 </div>
             </div>
         );
-    },
+    };
 
     componentWillMount() {
         this.componentWillReceiveProps(this.props);
-    },
+    }
 
     componentWillReceiveProps(props) {
         if (props.record && !this.state.record) {
@@ -485,9 +483,9 @@ const EditRecord = React.createClass({
             });
             return updated ? record : null;
         }
-    },
+    }
 
-    validField(schema, value) {
+    validField = (schema, value) => {
         if (schema && schema.get('isRequired')) {
             if (!this.props.isDraft || this.isForPublication()) {
                 // 0 is fine
@@ -496,9 +494,9 @@ const EditRecord = React.createClass({
             }
         }
         return true;
-    },
+    };
 
-    findValidationErrorsRec(errors, schema, path, value) {
+    findValidationErrorsRec = (errors, schema, path, value) => {
         const isValue = (value !== undefined && value !== null && value !== "");
         if (schema.get('isRequired') && !isValue) {
             if (!this.props.isDraft || this.isForPublication()) {
@@ -526,9 +524,9 @@ const EditRecord = React.createClass({
                 errors[pathstr] = invalidFieldMessage(pathstr);
             }
         }
-    },
+    };
 
-    findValidationErrors() {
+    findValidationErrors = () => {
         const rootSchema = this.props.rootSchema;
         const blockSchemas = this.props.blockSchemas || [];
         if (!rootSchema) {
@@ -548,9 +546,9 @@ const EditRecord = React.createClass({
             errors.files = this.state.errors.files;
         }
         return errors;
-    },
+    };
 
-    updateRecord(event) {
+    updateRecord = (event) => {
         event.preventDefault();
         const errors = this.findValidationErrors();
         if (this.state.fileState !== 'done' || pairs(errors).length > 0) {
@@ -590,19 +588,19 @@ const EditRecord = React.createClass({
 
         this.setState({waitingForServer: true});
         this.props.patchFn(patch, afterPatch, onError);
-    },
+    };
 
-    isForPublication() {
+    isForPublication = () => {
         return this.state.record.get('publication_state') == 'submitted';
-    },
+    };
 
-    setPublishedState(e) {
+    setPublishedState = (e) => {
         const state = e.target.checked ? 'submitted' : 'draft';
         const record = this.state.record.set('publication_state', state);
         this.setState({record});
-    },
+    };
 
-    renderUpdateRecordForm() {
+    renderUpdateRecordForm = () => {
         const klass = this.state.waitingForServer ? 'disabled' :
                       this.state.dirty ? 'btn-primary' : 'disabled';
         const text = this.state.waitingForServer ? "Updating record, please wait...":
@@ -613,9 +611,9 @@ const EditRecord = React.createClass({
                 <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
             </div>
         );
-    },
+    };
 
-    renderSubmitDraftForm() {
+    renderSubmitDraftForm = () => {
         const klass = this.state.waitingForServer ? 'disabled' :
                       this.isForPublication() ? 'btn-primary btn-danger' :
                       this.state.dirty ? 'btn-primary' : 'disabled';
@@ -633,7 +631,7 @@ const EditRecord = React.createClass({
                 <button type="submit" className={"btn btn-default btn-block "+klass} onClick={this.updateRecord}>{text}</button>
             </div>
         );
-    },
+    };
 
     render() {
         const rootSchema = this.props.rootSchema;
@@ -685,4 +683,4 @@ const EditRecord = React.createClass({
             </div>
         );
     }
-});
+}

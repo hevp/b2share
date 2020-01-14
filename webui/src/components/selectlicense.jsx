@@ -1,15 +1,16 @@
-import React from 'react/lib/ReactWithAddons';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-const PT = React.PropTypes;
+const PT = PropTypes;
 
-export const SelectLicense = React.createClass({
-    propTypes: {
+export class SelectLicense extends React.Component {
+    static propTypes = {
         title: PT.string.isRequired,
         onSelect: PT.func.isRequired,
         setModal: PT.func.isRequired,
-    },
+    };
 
-    onReceiveMessage(event) {
+    onReceiveMessage = (event) => {
         var origin = event.origin || event.originalEvent.origin;
         if (origin === window.location.origin) {
             this.props.setModal(false);
@@ -17,15 +18,15 @@ export const SelectLicense = React.createClass({
                 this.props.onSelect(event.data);
             }
         }
-    },
+    };
 
     componentWillMount() {
         window.addEventListener("message", this.onReceiveMessage, false);
-    },
+    }
 
     componentWillUnmount() {
         window.removeEventListener("message", this.onReceiveMessage);
-    },
+    }
 
     render(type, getValue, setValue, title) {
         const licenseModal = <iframe src="/license-selector.html"
@@ -44,5 +45,5 @@ export const SelectLicense = React.createClass({
                     {this.props.title}
             </a>
         );
-    },
-});
+    }
+}

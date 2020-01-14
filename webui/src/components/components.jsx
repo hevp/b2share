@@ -1,18 +1,18 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import { ReactTransitionGroup, CSSTransitionGroup } from 'react-transition-group';
 
-const PT = React.PropTypes;
-
-const ReactCSSTransitionGroup = React.addons.ReactCSSTransitionGroup;
-const ReactTransitionGroup = React.addons.TransitionGroup;
-
+const PT = PropTypes;
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Slides
 
-let JQuerySlide = React.createClass({
-	componentWillEnter: function(callback){
+let JQuerySlide = createReactClass({
+    displayName: 'JQuerySlide',
+
+    componentWillEnter: function(callback){
 		var el = jQuery(this.getDOMNode());
 		el.css("display", "none");
 		el.slideDown(500, callback);
@@ -20,49 +20,55 @@ let JQuerySlide = React.createClass({
 			callback();
 		});
 	},
-	componentWillLeave: function(callback){
+
+    componentWillLeave: function(callback){
 		var $el = jQuery(this.getDOMNode());
 		$el.slideUp(function(){
 			callback();
 		});
 	},
-	render: function(){
+
+    render: function(){
 		return this.transferPropsTo(this.props.component({style: {display: 'none'}}));
-	}
+	},
 });
 
-let JQueryFade = React.createClass({
-	componentWillEnter: function(callback){
+let JQueryFade = createReactClass({
+    displayName: 'JQueryFade',
+
+    componentWillEnter: function(callback){
 		var el = jQuery(this.getDOMNode());
 		el.css("display", "none");
 		el.fadeIn(500, callback);
 	},
-	componentWillLeave: function(callback){
+
+    componentWillLeave: function(callback){
 		jQuery(this.getDOMNode()).fadeOut(500, callback);
 	},
-	render: function() {
+
+    render: function() {
 		return this.props.children;
-	}
+	},
 });
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Error Pane
 
-let ErrorPane = React.createClass({
-	propTypes: {
+class ErrorPane extends React.Component {
+    static propTypes = {
 		errorMessages: PT.array.isRequired,
-	},
+	};
 
-	renderErrorMessage: function(errorMessage, index) {
+    renderErrorMessage = (errorMessage, index) => {
 		return errorMessage ?
 			<JQueryFade key={index}>
 				<div key={index} className="errorMessage">{errorMessage}</div>
 			</JQueryFade> :
 			false;
-	},
+	};
 
-	render: function() {
+    render() {
 		return	<div className="container errorDiv">
 					<div className="row errorRow">
 						<ReactTransitionGroup component="div">
@@ -71,26 +77,32 @@ let ErrorPane = React.createClass({
 					</div>
 				</div>;
 	}
-});
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Modal
 
 
-let Modal = React.createClass({
-	propTypes: {
+let Modal = createReactClass({
+    displayName: 'Modal',
+
+    propTypes: {
 		title: PT.string.isRequired,
 	},
-	componentDidMount: function() {
+
+    componentDidMount: function() {
 		$(this.getDOMNode()).modal({background: true, keyboard: true, show: false});
 	},
-	componentWillUnmount: function() {
+
+    componentWillUnmount: function() {
 		$(this.getDOMNode()).off('hidden');
 	},
-	handleClick: function(e) {
+
+    handleClick: function(e) {
 		e.stopPropagation();
 	},
-	render: function() {
+
+    render: function() {
 		return (
 			<div onClick={this.handleClick} className="modal fade" role="dialog" aria-hidden="true">
 				<div className="modal-dialog">
@@ -112,22 +124,22 @@ let Modal = React.createClass({
 				</div>
 			</div>
 		);
-	}
+	},
 });
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Media
 
-let Media = React.createClass({
-    propTypes: {
+class Media extends React.Component {
+    static propTypes = {
         src: PT.string.isRequired,
         type: PT.string.isRequired,
         name: PT.string.isRequired,
         size: PT.string.isRequired,
-    },
+    };
 
-    renderByType: function(src, type) {
+    renderByType = (src, type) => {
         if (type.startsWith("image/")) {
             return <img className='img-thumbnail img-responsive' src={src}/>;
         } else {
@@ -137,9 +149,9 @@ let Media = React.createClass({
                 </div>
             );
         }
-    },
+    };
 
-    render: function() {
+    render() {
         return  (
             <div className='media-wrapper'>
                 <div className="media-img col-sm-4">
@@ -153,4 +165,4 @@ let Media = React.createClass({
             </div>
         )
     }
-});
+}

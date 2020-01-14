@@ -1,7 +1,8 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import { serverCache, notifications, browser } from '../data/server';
 
-export const ReportAbuse = React.createClass({
+export const ReportAbuse = createReactClass({
+    displayName: 'ReportAbuse',
     mixins: [React.addons.LinkedStateMixin],
 
     getInitialState() {
@@ -391,5 +392,5 @@ export const ReportAbuse = React.createClass({
                 </form>
             </div>
         );
-    }
+    },
 });

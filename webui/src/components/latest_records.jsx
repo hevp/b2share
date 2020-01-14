@@ -1,15 +1,17 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router'
 import { timestamp2str } from '../data/misc.js'
 import { Error } from '../data/server';
 import { Map, List } from 'immutable';
 
-export const LatestRecords = React.createClass({
-    mixins: [React.addons.PureRenderMixin],
+export const LatestRecords = createReactClass({
+    displayName: 'LatestRecords',
+
 
     propTypes: {
-        records: React.PropTypes.object.isRequired,
-        community: React.PropTypes.string
+        records: PropTypes.object.isRequired,
+        community: PropTypes.string
     },
 
     renderCreators(creators) {
@@ -73,6 +75,6 @@ export const LatestRecords = React.createClass({
                 </div>
             </div>
         );
-    }
+    },
 });
 

@@ -1,19 +1,17 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
 import { Link } from 'react-router'
 import { serverCache, browser, notifications, Error } from '../data/server';
 import { ListAnimate, HeightAnimate } from './animate.jsx';
 import { NavbarUser } from './user.jsx';
 
 
-export const Navbar = React.createClass({
+export class Navbar extends React.Component {
     // not a pure render, depends on the URL
-    getInitialState() {
-        return { open: true };
-    },
+    state = { open: true };
 
-    toggle() {
+    toggle = () => {
         this.setState({open: !this.state.open});
-    },
+    };
 
     render() {
         return (
@@ -37,44 +35,38 @@ export const Navbar = React.createClass({
             </nav>
         );
     }
-});
+}
 
 
-const NavbarMenu = React.createClass({
+function NavbarMenu(props) {
+    const cname = props.collapse ? "collapse":"";
+    const hideSearchBar = props.location.pathname == '/records' || props.location.pathname == '/records/';
+    return (
+        <div className={cname + " navbar-collapse"} id="header-navbar-collapse">
+            <NavbarSearch location={props.location} visibility={!hideSearchBar}/>
+
+            <ul className="nav navbar-nav text-uppercase">
+                <li> <Link to="/help" activeClassName='active'> Help </Link> </li>
+                <li> <Link to="/communities" activeClassName='active'> Communities </Link> </li>
+                <li> <Link to="/records/new" activeClassName='active'> Upload </Link> </li>
+                <li> <a href="https://www.eudat.eu/support-request?service=B2SHARE" activeClassName='active' target="_blank"> Contact </a> </li>
+            </ul>
+            <ul className="nav navbar-nav user">
+                <NavbarUser user={serverCache.getUser()}/>
+            </ul>
+        </div>
+    );
+}
+
+class NavbarSearch extends React.Component {
     // not a pure render, depends on the URL
-    render() {
-        const cname = this.props.collapse ? "collapse":"";
-        const hideSearchBar = this.props.location.pathname == '/records' || this.props.location.pathname == '/records/';
-        return (
-            <div className={cname + " navbar-collapse"} id="header-navbar-collapse">
-                <NavbarSearch location={this.props.location} visibility={!hideSearchBar}/>
-
-                <ul className="nav navbar-nav text-uppercase">
-                    <li> <Link to="/help" activeClassName='active'> Help </Link> </li>
-                    <li> <Link to="/communities" activeClassName='active'> Communities </Link> </li>
-                    <li> <Link to="/records/new" activeClassName='active'> Upload </Link> </li>
-                    <li> <a href="https://www.eudat.eu/support-request?service=B2SHARE" activeClassName='active' target="_blank"> Contact </a> </li>
-                </ul>
-                <ul className="nav navbar-nav user">
-                    <NavbarUser user={serverCache.getUser()}/>
-                </ul>
-            </div>
-        );
-    }
-});
-
-
-const NavbarSearch = React.createClass({
-    // not a pure render, depends on the URL
-    getInitialState() {
-        return {
-            q: "",
-        };
-    },
+    state = {
+        q: "",
+    };
 
     componentWillMount() {
         this.componentWillReceiveProps(this.props);
-    },
+    }
 
     componentWillReceiveProps(newProps) {
         const location = newProps.location || {};
@@ -83,16 +75,16 @@ const NavbarSearch = React.createClass({
         delete state['community'];
         delete state['page'];
         this.setState(state);
-    },
+    }
 
-    search(event) {
+    search = (event) => {
         event.preventDefault();
         browser.gotoSearch(this.state);
-    },
+    };
 
-    searchHelp(event) {
+    searchHelp = (event) => {
         event.preventDefault();
-    },
+    };
 
     render() {
         const setStateEvent = ev => this.setState({q: ev.target.value});
@@ -117,12 +109,12 @@ const NavbarSearch = React.createClass({
             </form>
         );
     }
-});
+}
 
 
-export const Breadcrumbs = React.createClass({
+export class Breadcrumbs extends React.Component {
     // not a pure render, depends on the URL
-    renderLink(text, path, isfirst, islast) {
+    renderLink = (text, path, isfirst, islast) => {
         if (isfirst && islast) {
             return <i className="fa fa-home"/>;
         } else if (isfirst) {
@@ -131,15 +123,15 @@ export const Breadcrumbs = React.createClass({
             return text;
         }
         return <Link to={path}>{text}</Link>;
-    },
+    };
 
-    renderItem([text, path, isfirst, islast]) {
+    renderItem = ([text, path, isfirst, islast]) => {
         return (
             <li key={path} className={'text-uppercase' + (islast ?' active':'')}>
                 {this.renderLink(text, path, isfirst, islast)}
             </li>
         );
-    },
+    };
 
     render() {
         let crumbs = window.location.pathname.split('/').filter(x=>x);
@@ -159,11 +151,11 @@ export const Breadcrumbs = React.createClass({
             </div>
         );
     }
-});
+}
 
 
-export const Notifications = React.createClass({
-    olDomElement: null,
+export class Notifications extends React.Component {
+    olDomElement = null;
 
     componentWillMount() {
         notifications.store.onChange = () => {
@@ -175,23 +167,23 @@ export const Notifications = React.createClass({
                 });
             }
         }
-    },
+    }
 
-    renderNotification(level, text, date) {
+    renderNotification = (level, text, date) => {
         return (
             <li className={"alert alert-"+level} key={text}>
                 {text}
             </li>
         );
-    },
+    };
 
-    renderAlerts([level, texts]) {
+    renderAlerts = ([level, texts]) => {
         return(
             <ListAnimate key={level}>
                 {texts.entrySeq().map(([t, date]) => this.renderNotification(level, t, date))}
             </ListAnimate>
         );
-    },
+    };
 
     render() {
         const levels = notifications.getAll();
@@ -207,4 +199,4 @@ export const Notifications = React.createClass({
             </ol>
         );
     }
-});
+}

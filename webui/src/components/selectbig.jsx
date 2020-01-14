@@ -1,37 +1,36 @@
-import React from 'react/lib/ReactWithAddons';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { DropdownList } from 'react-widgets';
 import { serverCache } from '../data/server';
 
-const PT = React.PropTypes;
+const PT = PropTypes;
 
-export const SelectBig = React.createClass({
-    propTypes: {
+export class SelectBig extends React.Component {
+    static propTypes = {
         data: PT.array,
         value: PT.string,
         onSelect: PT.func.isRequired,
-    },
+    };
 
-    maxResults: 50,
+    state = {
+        lastSearch: '',
+        results: 0,
+    };
 
-    shouldComponentUpdate: function(nextProps, nextState) {
+    maxResults = 50;
+
+    shouldComponentUpdate(nextProps, nextState) {
         const len = x => (x && x.length !== undefined) ? x.length : 0;
         // fast check, not exact, but should work for our use case
         return nextProps.value !== this.props.value
             || len(nextProps.data) !== len(this.props.data);
-    },
+    }
 
-    getInitialState: function(){
-        return {
-            lastSearch: '',
-            results: 0,
-        };
-    },
-
-    select: function (val) {
+    select = (val) => {
         this.props.onSelect(val.id);
-    },
+    };
 
-    filter: function (item, search) {
+    filter = (item, search) => {
         // rendering all inputs is slow (>7000 for languages)
         // so limit number of responses to maxResults
         if (search !== this.state.lastSearch) {
@@ -48,9 +47,9 @@ export const SelectBig = React.createClass({
             }
         }
         return false;
-    },
+    };
 
-    renderField(item) {
+    renderField = (item) => {
         if (item === undefined || item === null) {
             return "";
         }
@@ -58,7 +57,7 @@ export const SelectBig = React.createClass({
             return item.name;
         }
         return item.name + " ["+item.id+"]";
-    },
+    };
 
     render() {
         const busy = !this.props.data;
@@ -76,4 +75,4 @@ export const SelectBig = React.createClass({
                 busy={busy} />
         );
     }
-});
+}
