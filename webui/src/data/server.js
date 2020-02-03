@@ -1018,6 +1018,10 @@ export const browser = {
         browserHistory.push(`/`);
     },
 
+    gotoProfile() {
+        browserHistory.push(`/user`);
+    },
+
     getRecordURL(recordId) {
         return `${window.location.origin}/records/${recordId}`;
     },
