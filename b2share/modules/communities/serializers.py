@@ -46,6 +46,21 @@ def community_self_link(community, **kwargs):
         'b2share_communities.communities_item',
         community_id=community.id, **kwargs)
 
+def community_policies(community):
+    """Create a dictionary with all policies of a given community.
+
+    Args:
+        community (:class:`b2share.modules.communities.api:Community`):
+            community for which the policies will be extracted.
+
+    :Returns:
+        str: link pointing to the given community.
+    """
+
+    return dict(
+        publication_workflow=community.publication_workflow,
+        restricted_submission=community.restricted_submission
+    )
 
 def community_to_dict(community):
     ret = dict(
@@ -55,11 +70,10 @@ def community_to_dict(community):
         logo=community.logo,
         created=community.created,
         updated=community.updated,
-        publication_workflow=community.publication_workflow,
-        restricted_submission=community.restricted_submission,
         links=dict(
             self=community_self_link(community, _external=True),
         ),
+        policies=community_policies(community),
         roles=dict(
             admin=dict(id=community.admin_role.id,
                        name=community.admin_role.name,

@@ -46,13 +46,13 @@ after_community_insert = _signals.signal('after-community-insert')
 """Signal sent after a community is inserted."""
 
 before_community_update = _signals.signal('before-community-update')
-"""Signal is sent before a community is update."""
+"""Signal is sent before a community is updated."""
 
 after_community_update = _signals.signal('after-community-update')
 """Signal sent after a community is updated."""
 
 before_community_delete = _signals.signal('before-community-delete')
-"""Signal is sent before a community is delete."""
+"""Signal is sent before a community is deleted."""
 
 after_community_delete = _signals.signal('after-community-delete')
-"""Signal sent after a community is delete."""
+"""Signal sent after a community is deleted."""

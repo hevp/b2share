@@ -238,45 +238,45 @@ class CommunityResource(ContentNegotiatedMethodView):
     #     return '', 204
 
     @pass_community
-    @need_community_permission(read_permission_factory)
+    #@need_community_permission(read_permission_factory)
     def get(self, community, **kwargs):
         """Get a community's metadata."""
         # check the ETAG
         self.check_etag(str(community.updated))
         return community
 
-    # @require_content_types('application/json-patch+json', 'application/json')
-    # @pass_community
-    # @need_community_permission(update_permission_factory)
-    # def patch(self, community, **kwargs):
-    #     """Patch a community."""
-    #     # check the ETAG
-    #     self.check_etag(str(community.updated))
+    @require_content_types('application/json-patch+json', 'application/json')
+    @pass_community
+    @need_community_permission(update_permission_factory)
+    def patch(self, community, **kwargs):
+        """Patch a community."""
+        # check the ETAG
+        self.check_etag(str(community.updated))
 
-    #     data = request.get_json(force=True)
-    #     if data is None:
-    #         abort(400)
-    #     try:
-    #         if 'application/json' == request.content_type:
-    #             community.update(data)
-    #         else:
-    #             community = community.patch(data)
-    #         db.session.commit()
-    #         return community
-    #     except (JsonPatchConflict):
-    #         abort(409)
-    #     except (JsonPatchException, InvalidJsonPatch):
-    #         abort(400)
-    #     except InvalidCommunityError:
-    #         db.session.rollback()
-    #         abort(400)
-    #     except Exception as e1:
-    #         current_app.logger.exception('Failed to patch record.')
-    #         try:
-    #             db.session.rollback()
-    #         except Exception as e2:
-    #             raise e2 from e1
-    #         abort(500)
+        data = request.get_json(force=True)
+        if data is None:
+            abort(400)
+        try:
+            if 'application/json' == request.content_type:
+                community.update(data)
+            else:
+                community = community.patch(data)
+            db.session.commit()
+            return community
+        except (JsonPatchConflict):
+            abort(409)
+        except (JsonPatchException, InvalidJsonPatch):
+            abort(400)
+        except InvalidCommunityError:
+            db.session.rollback()
+            abort(400)
+        except Exception as e1:
+            current_app.logger.exception('Failed to patch record.')
+            try:
+                db.session.rollback()
+            except Exception as e2:
+                raise e2 from e1
+            abort(500)
 
     # @require_content_types('application/json')
     # @pass_community
