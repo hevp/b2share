@@ -24,6 +24,7 @@
 """Community models."""
 
 import uuid
+import simplejson
 from itertools import chain
 
 from invenio_db import db
@@ -36,6 +37,7 @@ from invenio_access.models import ActionRoles
 from invenio_oaiserver.models import OAISet
 from b2share.utils import add_to_db
 
+from .policies import CommunityPolicies
 
 class Community(db.Model, Timestamp):
     """Represent a community metadata inside the SQL database.
@@ -67,6 +69,14 @@ class Community(db.Model, Timestamp):
     # Flag marking the community as deleted
     deleted = db.Column(db.Boolean, nullable=False,
                         server_default=expression.false())
+
+    # Policies for community including workflows
+    # policies = db.Column(db.Text, nullable=True,
+    #                      default=simplejson.dumps({
+    #                             'publication_workflow': 'direct_publish',
+    #                             'restricted_submission': False
+    #                         })
+    #                      )
 
     # Publication workflow used in this community
     publication_workflow = db.Column(db.String(80), nullable=False,

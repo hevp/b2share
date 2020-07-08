@@ -34,6 +34,8 @@ from flask.cli import with_appcontext
 from invenio_db import db
 
 from .api import Community, CommunityDoesNotExistError
+from .helpers import get_community_by_name_or_id
+from .policies import CommunityPolicies
 
 
 @click.group()
@@ -45,10 +47,10 @@ def _validate_community_parameters(name=None, description=None, logo=None):
     """Validate community parameters and update them if needed."""
     if name is not None and len(name) > 80:
         raise click.BadParameter(""""NAME parameter is longer than the 80
-        character maximum""")
+            character maximum""")
     if description is not None and len(description) > 2000:
         raise click.BadParameter("""DESCRIPTION parameter is longer than the
-        2000 character maximum""")
+            2000 character maximum""")
 
     if logo is not None:
         webui_path = os.environ.get('B2SHARE_UI_PATH', 'webui/app')
@@ -57,11 +59,14 @@ def _validate_community_parameters(name=None, description=None, logo=None):
             logo = os.path.join(img_path, logo)
         if not logo.startswith(img_path) or not isfile(logo):
             raise click.BadParameter(""""LOGO should be the filename of an
-            image file existing in the B2SHARE_UI_PATH/img/communities/
-            directory.""")
+                image file existing in the B2SHARE_UI_PATH/img/communities/
+                directory.""")
         logo = '/' + os.path.relpath(logo, webui_path)
     return (name, description, logo)
 
+def _validate_community_policy(name=None, description=None, logo=None):
+    """Validate community policy and value """
+    return (policy, value)
 
 @communities.command()
 @with_appcontext
@@ -116,7 +121,7 @@ def edit(verbose, id, name, description, logo, clear_fields):
         raise click.BadParameter("No community with id %s" % id)
     if not(name or description or logo):
         raise click.ClickException("""At least one of name, description or
-        id must be specified""")
+            id must be specified""")
 
     name, description, logo = _validate_community_parameters(name, description,
                                                              logo)
@@ -126,8 +131,8 @@ def edit(verbose, id, name, description, logo, clear_fields):
             try:
                 Community.get(name=name)
                 raise click.BadParameter("""You are trying to
-                change the name of the community but another community
-                already exists with that name.""")
+                    change the name of the community but another community
+                    already exists with that name.""")
             except CommunityDoesNotExistError:
                 pass
         data['name'] = name
@@ -140,6 +145,53 @@ def edit(verbose, id, name, description, logo, clear_fields):
     click.echo("Community %s updated: name= %s description=%s logo=%s" %
                (updated_community.id, updated_community.name,
                 updated_community.description, updated_community.logo))
+
+
+@communities.command()
+@with_appcontext
+@click.option('-v', '--verbose', is_flag=True, default=False)
+@click.option('-a', '--all', is_flag=True, default=False,
+              help='list all available policies (without community identifier) or list policy values (for given community)')
+@click.argument('id', required=False)
+@click.argument('policy', required=False)
+@click.argument('value', required=False)
+def set_policy(verbose, all, id, policy, value):
+    """Set value for specified policy or list all (values of) policies of the specified community."""
+    if id:
+        community = get_community_by_name_or_id(id)
+        if not community:
+            raise click.BadParameter("There is no community by this name or ID: %s" %
+                                     id)
+    elif not all:
+        ctx = click.get_current_context()
+        click.echo(ctx.get_help())
+        return
+
+    if all:
+        """Display available policies or list the values for the given community"""
+        if policy or value:
+            raise click.ClickException("""List option can't be used with policy and/or value specified""")
+        if id:
+            click.echo("Community %s policies:" % (community.id))
+            for p, v in community.policies:
+                click.echo(" %s: %s" % (p, v))
+        else:
+            click.echo("Available policies:")
+            for p in CommunityPolicies:
+                click.echo(" %s (%s): %s" % (p.name, p.datatype.__name__, p.description))
+        return
+
+    if not(policy or value):
+        raise click.ClickException("""At least one policy and value must be specified""")
+
+    policy, value = _validate_community_policy(policy, value)
+
+    data = community.policies
+    data[policy] = value
+    updated_community = community.update(data, clear_fields)
+    db.session.commit()
+    click.echo("Community %s policy %s updated: %s" %
+               (updated_community.id, policy, updated_community.policies.policy))
 
 
 @communities.command()
